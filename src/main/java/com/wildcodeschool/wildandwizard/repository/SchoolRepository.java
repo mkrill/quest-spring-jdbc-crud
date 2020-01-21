@@ -1,7 +1,6 @@
 package com.wildcodeschool.wildandwizard.repository;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -9,14 +8,23 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.sql.DataSource;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
+
 import com.wildcodeschool.wildandwizard.entity.School;
 import com.wildcodeschool.wildandwizard.util.JdbcUtils;
 
+@Repository
 public class SchoolRepository implements CrudDao<School> {
 
-	private final static String DB_URL = "jdbc:mysql://localhost:3306/spring_jdbc_quest?serverTimezone=GMT";
-	private final static String DB_USER = "h4rryp0tt3r";
-	private final static String DB_PASSWORD = "Horcrux4life!";
+	DataSource datasource;
+
+	@Autowired
+	public SchoolRepository(DataSource datasource) {
+		this.datasource = datasource;
+	}
 
 	@Override
 	public School save(School school) {
@@ -26,7 +34,7 @@ public class SchoolRepository implements CrudDao<School> {
 		ResultSet generatedKeys = null;
 
 		try {
-			connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+			connection = datasource.getConnection();
 			statement = connection.prepareStatement(
 					"INSERT INTO school (name, capacity, country) VALUES (?, ?, ?);",
 					Statement.RETURN_GENERATED_KEYS);
@@ -67,7 +75,7 @@ public class SchoolRepository implements CrudDao<School> {
 
 		try {
 
-			connection = DriverManager.getConnection(DB_URL, DB_USER,DB_PASSWORD);
+			connection = datasource.getConnection();
 			statement = connection.prepareStatement("select * from school where id = ?;");
 
 			statement.setLong(1, id);
@@ -101,7 +109,7 @@ public class SchoolRepository implements CrudDao<School> {
 		ResultSet resultSet = null;
 
 		try {
-			connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+			connection = datasource.getConnection();
 
 			statement = connection.prepareStatement("select * from school;");
 
@@ -146,7 +154,7 @@ public class SchoolRepository implements CrudDao<School> {
 
 		try {
 
-			connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+			connection = datasource.getConnection();
 
 			statement = connection.prepareStatement("UPDATE school SET name = ?, capacity = ?, country = ? where id = ?;");
 
@@ -178,16 +186,16 @@ public class SchoolRepository implements CrudDao<School> {
 		PreparedStatement statement = null;
 
 		try {
-			connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
-		
+			connection = datasource.getConnection();
+
 			statement = connection.prepareStatement("DELETE FROM school WHERE id = ?;");
-			
+
 			statement.setLong(1, id);
-			
+
 			if (statement.executeUpdate() != 1) {
 				throw new SQLException("failed to delete from school table");
 			}
-			
+
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} finally {

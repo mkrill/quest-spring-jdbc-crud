@@ -1,7 +1,6 @@
 package com.wildcodeschool.wildandwizard.controller;
 
-import com.wildcodeschool.wildandwizard.entity.School;
-import com.wildcodeschool.wildandwizard.repository.SchoolRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -9,12 +8,21 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.wildcodeschool.wildandwizard.entity.School;
+import com.wildcodeschool.wildandwizard.repository.SchoolRepository;
+
 @Controller
 public class SchoolController {
 
-    private SchoolRepository repository = new SchoolRepository();
+    private SchoolRepository repository;
+    
+    @Autowired
+    public SchoolController(SchoolRepository repository) {
+		super();
+		this.repository = repository;
+	}
 
-    @GetMapping("/schools")
+	@GetMapping("/schools")
     public String getAll(Model model) {
 
         model.addAttribute("schools", repository.findAll());
